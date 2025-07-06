@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Management</title>
+</head>
+<body>
+<h1>Student List</h1>
+<ul id="studentList"></ul>
+
+<h2>Add Student</h2>
+<input type="text" id="name" placeholder="Name">
+<input type="number" id="age" placeholder="Age">
+<button onclick="addStudent()">Add</button>
+
+<script>
+    const api = "http://localhost:8080/api/students";
+
+    function loadStudents() {
+        fetch(api)
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById("studentList");
+                list.innerHTML = "";
+                data.forEach(s => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `${s.name} (${s.age}) <button onclick="deleteStudent(${s.id})">Delete</button>`;
+                    list.appendChild(li);
+                });
+            });
+    }
+
+    function addStudent() {
+        const name = document.getElementById("name").value;
+        const age = document.getElementById("age").value;
+        fetch(api, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, age })
+        }).then(loadStudents);
+    }
+
+    function deleteStudent(id) {
+        fetch(`${api}/${id}`, { method: "DELETE" }).then(loadStudents);
+    }
+
+    loadStudents();
+</script>
+</body>
+</html>
